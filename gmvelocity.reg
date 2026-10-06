@@ -1,17 +1,17 @@
 Windows Registry Editor Version 5.00
 
 ; ==========================================================
-; bye-tcp-internet — GMVELOCITY Low-Latency Gaming Profile
-; Author: ceo714
-; GitHub: https://github.com/ceo714/bye-tcp-internet
-; Version: 1.2.0
+; bye-tcp-internet - GMVELOCITY Low-Latency Gaming Profile
+; Author: softgrain
+; GitHub: https://github.com/grainframe/bye-tcp-internet
+; Version: 1.3.0
 ; Target: Windows 10 (22H2+) / Windows 11
 ; ==========================================================
 ;
-; Philosophy: Minimal • Measurable • Reversible
+; Philosophy: Minimal - Measurable - Reversible
 ;
 ; Description:
-;   Superset of universal.reg — includes all baseline TCP/IP
+;   Superset of universal.reg - includes all baseline TCP/IP
 ;   overrides plus gaming-specific latency optimizations.
 ;   Designed for competitive/real-time scenarios.
 ;
@@ -38,7 +38,7 @@ Windows Registry Editor Version 5.00
 
 
 ; ----------------------------------------------------------
-; MMCSS — Prioritize Games
+; MMCSS - Prioritize Games
 ; Raises scheduling priority for game tasks in the kernel
 ; ----------------------------------------------------------
 
@@ -59,13 +59,13 @@ Windows Registry Editor Version 5.00
 ; Standard TTL = 64
 "DefaultTTL"=dword:00000040
 
-; Path MTU Discovery — avoid fragmentation
+; Path MTU Discovery - avoid fragmentation
 "EnablePMTUDiscovery"=dword:00000001
 
-; Disable black hole detection — latency overhead not worth it
+; Disable black hole detection - latency overhead not worth it
 "EnablePMTUBHDetect"=dword:00000000
 
-; SACK — selective loss recovery
+; SACK - selective loss recovery
 "SackOpts"=dword:00000001
 
 ; RFC 1323 Window Scaling only (timestamps skipped for lower overhead)
@@ -74,15 +74,15 @@ Windows Registry Editor Version 5.00
 ; Expand ephemeral port range
 "MaxUserPort"=dword:0000fffe
 
-; TIME_WAIT: 30s — aggressive port reuse for fast reconnects
+; TIME_WAIT: 30s - aggressive port reuse for fast reconnects
 "TcpTimedWaitDelay"=dword:0000001e
 
-; ECN disabled — gaming routers and ISPs often mishandle ECN
+; ECN disabled - gaming routers and ISPs often mishandle ECN
 "EnableECNCapability"=dword:00000000
 
 
 ; ----------------------------------------------------------
-; DNS — Aggressive Low-Latency Resolver Behavior
+; DNS - Aggressive Low-Latency Resolver Behavior
 ; Zero negative caching to avoid reconnect stalls after
 ; failed DNS lookups (e.g., server browser queries)
 ; ----------------------------------------------------------
@@ -94,7 +94,7 @@ Windows Registry Editor Version 5.00
 
 
 ; ----------------------------------------------------------
-; QoS Policy — Remove Reserved Bandwidth Limit
+; QoS Policy - Remove Reserved Bandwidth Limit
 ; ----------------------------------------------------------
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Psched]

@@ -12,7 +12,7 @@ No legacy tweaks. No placebo. No deprecated parameters.
 
 - **Minimal** — only keys read by `tcpip.sys` on current builds. No XP/Vista/7-era garbage.
 - **Measurable** — every change is verifiable via `netsh` and `Get-NetTCPSetting`. Effect is technical, not subjective.
-- **Reversible** — `rollback.reg` deletes all overrides, restoring Windows hardcoded defaults. No files are modified.
+- **Reversible** — `apply.bat` records a snapshot of your exact previous values before every apply; `snapshot.ps1 -Restore` puts each one back (original data, or deleted if it did not exist). Static `*-rollback.reg` files remain as a no-script fallback. No files are modified.
 
 ---
 
@@ -89,7 +89,7 @@ PowerShell:
 Get-NetTCPSetting -SettingName Internet
 ```
 
-Or use the included `verify.ps1` for a full automated check with PASS/FAIL output.
+Or use the included `verify.ps1` for a full automated check with PASS/FAIL output, a summary line and an exit code (`0` = no FAIL, `1` = at least one FAIL). It also compares registry values with the **live** stack (ECN, timestamps, dynamic port range) and prints `[WARN]` when they differ.
 
 ---
 
@@ -97,14 +97,15 @@ Or use the included `verify.ps1` for a full automated check with PASS/FAIL outpu
 
 ### 1. Apply
 
-Option A — manual:
-1. Double-click the chosen `.reg` file → Run as Administrator
-2. **Reboot**
-
-Option B — interactive:
+Option A — interactive (recommended, takes a snapshot automatically):
 ```
 apply.bat   (run as Administrator)
 ```
+
+Option B — manual:
+1. Take a snapshot first (Administrator PowerShell): `powershell -ExecutionPolicy Bypass -File snapshot.ps1 -Backup`
+2. Double-click the chosen `.reg` file → Run as Administrator
+3. **Reboot**
 
 ### 2. Verify
 
@@ -118,7 +119,17 @@ powershell -ExecutionPolicy Bypass -File verify.ps1
 
 ### 3. Rollback
 
-Run the corresponding `rollback.reg` and reboot.
+**Exact restore (recommended)** — `apply.bat` → `[6]`, or:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File snapshot.ps1 -Restore -WhatIf   # preview
+powershell -ExecutionPolicy Bypass -File snapshot.ps1 -Restore           # apply
+powershell -ExecutionPolicy Bypass -File snapshot.ps1 -List              # list snapshots
+```
+
+Restores the state from before the **first** apply (`baseline.json`, stored in `%ProgramData%\bye-tcp-internet\snapshots`, Administrators/SYSTEM only). Only the values this project writes can be touched. Reboot afterwards.
+
+**Static fallback** — run the corresponding `rollback.reg` and reboot. These files do not know your previous values: they delete the keys, except `NetworkThrottlingIndex` and `SystemResponsiveness`, which are set to `10` and `20`; `Tasks\Games` values are deleted, not reset.
 
 | Applied | Rollback |
 |---------|----------|
@@ -147,8 +158,10 @@ bye-tcp-internet/
 ├── universal-rollback.reg     # Rollback for universal
 ├── gmvelocity.reg             # Low-latency gaming profile
 ├── gmvelocity-rollback.reg    # Rollback for gmvelocity
-├── apply.bat                  # Interactive installer
-├── verify.ps1                 # Post-apply verification
+├── apply.bat                  # Interactive installer (snapshots before apply)
+├── snapshot.ps1               # Exact-state backup / restore
+├── verify.ps1                 # Post-apply verification (registry + live stack)
+├── .gitattributes             # Keeps CRLF in .reg/.bat/.ps1
 ├── CHANGELOG.md               # Version history
 └── LICENSE
 ```
@@ -178,8 +191,8 @@ bye-tcp-internet/
 
 ### Установка
 
-1. Запустить нужный `.reg` от имени администратора  
-   *(или `apply.bat` для интерактивного меню)*
+1. Запустить `apply.bat` от имени администратора — перед применением он автоматически сохраняет снимок текущих значений
+   *(вручную: сначала `snapshot.ps1 -Backup`, затем нужный `.reg` от имени администратора)*
 2. **Перезагрузить систему**
 
 ### Проверка
@@ -188,13 +201,17 @@ bye-tcp-internet/
 # Быстрая
 netsh int tcp show global
 
-# Полная автоматическая
+# Полная автоматическая (итог PASS/FAIL/WARN, код возврата 0/1)
 powershell -ExecutionPolicy Bypass -File verify.ps1
 ```
 
+`verify.ps1` сверяет реестр и с *живым* состоянием стека (ECN, timestamps, диапазон динамических портов); расхождение выводится как `[WARN]`.
+
 ### Откат
 
-Запустить соответствующий `rollback.reg` → перезагрузить ПК. Все ключи удаляются, стек возвращается к заводским значениям.
+**Точный откат (рекомендуется):** `apply.bat` → `[6]` или `snapshot.ps1 -Restore` (предпросмотр: `-WhatIf`). Возвращает значения, которые были до первого применения: исходные данные или удаление, если значения не было. Перезагрузить ПК.
+
+**Запасной вариант:** `rollback.reg` → перезагрузить ПК. Файл не знает прежних значений: ключи удаляются, кроме `NetworkThrottlingIndex` и `SystemResponsiveness` (ставятся `10` и `20`); значения `Tasks\Games` удаляются, а не сбрасываются.
 
 ### Заметки по ключам
 
@@ -213,7 +230,7 @@ powershell -ExecutionPolicy Bypass -File verify.ps1
 
 ## Author
 
-**ceo714** — [GitHub](https://github.com/ceo714)
+**softgrain** — [GitHub](https://github.com/grainframe)
 
 ## License
 

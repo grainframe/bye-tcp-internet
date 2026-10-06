@@ -5,6 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.0] — 2026-10-06
+
+### Added
+- `snapshot.ps1` — exact-state backup/restore of every registry value the profiles write. Records exists / type / data; restore puts the original data back or deletes values that did not exist (and keys that did not exist, if left empty). First snapshot is kept as `baseline.json` (state before first apply) and is the default restore point. Supports `-WhatIf` and `-List`. Writes only the values it manages; snapshot directory is Administrators/SYSTEM only.
+- `apply.bat`: snapshot is taken automatically before every apply (apply is aborted if the snapshot fails); new menu item `[6]` restores the original state.
+- `verify.ps1`: "Effective state" block compares registry values with the live stack (`EcnCapability`, `Timestamps`, dynamic port range) and prints `[WARN]` on mismatch; `PASS/FAIL/WARN` summary; exit code `0`/`1`.
+- `.gitattributes` — `.reg`, `.bat`, `.ps1` are stored as committed (CRLF).
+
+### Fixed
+- `verify.ps1`: the `NetworkThrottlingIndex` check could never pass — a `REG_DWORD` of `0xFFFFFFFF` is read as signed Int32 (`-1`), which never equals `4294967295`. DWORD values are now normalised to unsigned.
+- `verify.ps1`: after a rollback every check printed `[FAIL]`. With no profile active it now only lists current values.
+- Non-ASCII characters removed from `.reg`, `.bat`, `.ps1` (BOM-less UTF-8 is read as ANSI by Windows PowerShell 5.1 and may be misread by regedit, garbling text); files use CRLF.
+- README: rollback description corrected. Static rollback files delete values, except `NetworkThrottlingIndex` / `SystemResponsiveness` (set to `10` / `20`); `Tasks\Games` values are deleted, not reset. Exact restore is `snapshot.ps1 -Restore`.
+
+### Changed
+- Version `1.3.0` in all file headers. Registry values written by the profiles are unchanged.
+
+---
+
 ## [1.2.0] — 2026-03-05
 
 ### Added
@@ -18,7 +37,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - `gmvelocity.reg`: duplicate `[Tcpip\Parameters]` sections merged into one.
 - `SystemResponsiveness` set to `0` in `gmvelocity.reg` (was `0x14`); `0x14` kept in `universal.reg`.
-- Author tag corrected: `ceo14` → `ceo714` across all files.
+- Author tag corrected: `ceo14` → `softgrain` across all files.
 - All `.reg` comments rewritten to explain *why*, not just *what*.
 
 ### Fixed

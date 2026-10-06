@@ -1,15 +1,18 @@
 Windows Registry Editor Version 5.00
 
 ; ==========================================================
-; bye-tcp-internet — UNIVERSAL BASELINE ROLLBACK
-; Author: ceo714
-; GitHub: https://github.com/ceo714/bye-tcp-internet
-; Version: 1.2.0
+; bye-tcp-internet - UNIVERSAL BASELINE ROLLBACK
+; Author: softgrain
+; GitHub: https://github.com/grainframe/bye-tcp-internet
+; Version: 1.3.0
 ; ==========================================================
 ;
 ; Description:
 ;   Removes all overrides applied by universal.reg.
 ;   Deletes registry keys to restore Windows Hardcoded Defaults.
+;   NOTE: this file deletes values; it cannot know what your machine had
+;   before. For an exact restore of your previous values run
+;   apply.bat -> [6]  (or: snapshot.ps1 -Restore).
 ;   Does NOT touch MMCSS Tasks\Games (not modified by universal.reg).
 ;
 ; Apply:

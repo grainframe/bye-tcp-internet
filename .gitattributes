@@ -1,0 +1,6 @@
+# Windows scripts are committed with CRLF and must not be normalised.
+*.reg -text
+*.bat -text
+*.cmd -text
+*.ps1 -text
+*.png binary
